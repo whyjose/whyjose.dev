@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>whyjose.dev</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── Light mode (default) ── */
+    :root {
+      --bg:          #FFFFFF;
+      --surface:     #F2F2F7;
+      --surface-2:   #E5E5EA;
+      --border:      #C6C6C8;
+      --muted:       #AEAEB2;
+      --dim:         #8E8E93;
+      --text:        #000000;
+      --bright:      #000000;
+
+      --user-bubble: #2060FD;
+      --user-text:   #FFFFFF;
+      --bot-bubble:  #E9E9EB;
+      --bot-text:    #000000;
+
+      --radius-bubble: 18px;
+
+      --sys:         system-ui, 'Helvetica Neue', Arial, sans-serif;
+      --sys-display: system-ui, 'Helvetica Neue', Arial, sans-serif;
+
+      --spring:   cubic-bezier(0.34, 1.56, 0.64, 1);
+      --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+
+      --track-bg:    #E5E5EA;
+      --track-bg-on: #34C759;
+      --thumb-color: #FFFFFF;
+
+      color-scheme: light;
+    }
+
+    /* ── Dark mode ── */
+    [data-theme="dark"] {
+      --bg:         #000000;
+      --surface:    #1C1C1E;
+      --surface-2:  #2C2C2E;
+      --border:     #38383A;
+      --muted:      #48484A;
+      --dim:        #8E8E93;
+      --text:       #FFFFFF;
+      --bright:     #FFFFFF;
+
+      --bot-bubble: #3A3A3C;
+      --bot-text:   #FFFFFF;
+
+      --track-bg:   #3A3A3C;
+
+      color-scheme: dark;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sys);
+      font-size: 15px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      overscroll-behavior: none;
+      overflow-x: hidden;
+      transition: background 0.35s ease, color 0.35s ease;
+    }
+
+    /* ── Shell ── */
+    .shell {
+      display: flex;
+      flex-direction: column;
+      height: 100dvh;
+      max-width: 680px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 0 16px;
+      overflow-x: hidden;
+    }
+
+    /* ── Header ── */
+    header {
+      padding: 12px 0 10px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+      animation: headerIn 0.5s var(--ease-out) both;
+      text-align: center;
+    }
+
+    .header-top {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+
+    /* ── Avatar ── */
+    .avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: linear-gradient(160deg, #5E5CE6 0%, #2060FD 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--sys-display);
+      font-size: 22px;
+      font-weight: 600;
+      color: #FFFFFF;
+      flex-shrink: 0;
+      letter-spacing: -0.5px;
+    }
+
+    .header-info { text-align: center; }
+
+    .site-name {
+      font-family: var(--sys-display);
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.2px;
+      line-height: 1.2;
+    }
+
+    .status {
+      font-size: 12px;
+      color: var(--dim);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #34C759;
+      animation: pulse-green 2s infinite;
+    }
+
+    /* ── Suggestions ── */
+    .suggestions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      padding: 12px 0 0;
+      justify-content: center;
+      animation: fadeUp 0.5s 0.15s var(--ease-out) both;
+    }
+
+    .suggestion {
+      background: var(--surface);
+      border: 1px solid var(--surface-2);
+      color: #2060FD;
+      font-family: var(--sys);
+      font-size: 13px;
+      font-weight: 500;
+      padding: 5px 13px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background 0.12s, transform 0.1s;
+      white-space: nowrap;
+    }
+
+    .suggestion:hover  { background: var(--surface-2); }
+    .suggestion:active { transform: scale(0.95); }
+
+    /* ── Messages ── */
+    .messages {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      padding: 16px 0 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+
+    .messages::-webkit-scrollbar { width: 3px; }
+    .messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    /* ── Message row ── */
+    .msg-row {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      margin-bottom: 2px;
+    }
+
+    .msg-row.user { align-items: flex-end; }
+    .msg-row.bot  { align-items: flex-start; }
+
+    /* Timestamp label */
+    .msg-label {
+      font-size: 11px;
+      color: var(--dim);
+      font-family: var(--sys);
+      padding: 0 14px;
+      opacity: 0;
+      animation: fadeIn 0.3s 0.4s ease forwards;
+    }
+
+    /* Bubble */
+    .bubble {
+      max-width: min(75%, 420px);
+      padding: 9px 13px;
+      font-size: 15px;
+      font-weight: 400;
+      line-height: 1.55;
+      word-break: break-word;
+      white-space: pre-wrap;
+      position: relative;
+    }
+
+    /* ── User bubble ── */
+    .msg-row.user .bubble {
+      background: var(--user-bubble);
+      color: var(--user-text);
+      border-radius: var(--radius-bubble) var(--radius-bubble) 4px var(--radius-bubble);
+      transform-origin: right bottom;
+      animation: bubbleInRight 0.4s var(--spring) both;
+    }
+
+    /* ── Bot bubble ── */
+    .msg-row.bot .bubble {
+      background: var(--bot-bubble);
+      color: var(--bot-text);
+      border-radius: var(--radius-bubble) var(--radius-bubble) var(--radius-bubble) 4px;
+      transform-origin: left bottom;
+      animation: bubbleInLeft 0.4s var(--spring) both;
+    }
+
+    /* Bubble tails */
+    .msg-row.user .bubble::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      right: -5px;
+      width: 10px;
+      height: 10px;
+      background: var(--user-bubble);
+      clip-path: polygon(0 0, 0 100%, 100% 100%);
+    }
+
+    .msg-row.bot .bubble::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: -5px;
+      width: 10px;
+      height: 10px;
+      background: var(--bot-bubble);
+      clip-path: polygon(100% 0, 0 100%, 100% 100%);
+    }
+
+    /* ── Meme card ── */
+    .meme-card {
+      max-width: min(75%, 320px);
+      border-radius: 18px;
+      overflow: hidden;
+      border: none;
+      background: var(--surface);
+      transform-origin: left bottom;
+      animation: memeIn 0.5s 0.15s var(--spring) both;
+      cursor: pointer;
+    }
+
+    .meme-card img,
+    .meme-card video {
+      display: block;
+      width: 100%;
+      max-height: 260px;
+      object-fit: cover;
+    }
+
+    .meme-source {
+      font-size: 11px;
+      color: var(--dim);
+      padding: 4px 10px 6px;
+      font-family: var(--sys);
+    }
+
+    /* Meme loading shimmer */
+    .meme-shimmer {
+      width: 220px;
+      height: 160px;
+      border-radius: 18px;
+      background: linear-gradient(90deg, var(--surface-2) 25%, var(--muted) 50%, var(--surface-2) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.2s infinite, memeIn 0.5s 0.15s var(--spring) both;
+    }
+
+    /* ── Typing indicator ── */
+    .typing-row {
+      display: flex;
+      align-items: flex-start;
+      padding: 2px 0;
+    }
+
+    .typing-bubble {
+      background: var(--bot-bubble);
+      border-radius: var(--radius-bubble) var(--radius-bubble) var(--radius-bubble) 4px;
+      padding: 13px 16px;
+      display: flex;
+      gap: 4px;
+      align-items: center;
+      animation: bubbleInLeft 0.3s var(--spring) both;
+    }
+
+    .typing-bubble span {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #8E8E93;
+      animation: typingDot 1.4s infinite;
+    }
+
+    .typing-bubble span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-bubble span:nth-child(3) { animation-delay: 0.4s; }
+
+    /* ── Empty state ── */
+    .empty {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 6px;
+      text-align: center;
+      color: var(--dim);
+      font-size: 13px;
+      font-family: var(--sys);
+      animation: fadeUp 0.6s 0.3s var(--ease-out) both;
+    }
+
+    .empty-glyph {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: linear-gradient(160deg, #5E5CE6 0%, #2060FD 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 8px;
+      opacity: 0.35;
+    }
+
+    /* ── Error ── */
+    .error-bubble {
+      background: rgba(255, 69, 58, 0.1);
+      border: 1px solid rgba(255, 69, 58, 0.25);
+      color: #FF453A;
+      border-radius: 14px;
+      padding: 9px 13px;
+      font-size: 13px;
+      max-width: 75%;
+      animation: bubbleInLeft 0.4s var(--spring) both;
+      font-family: var(--sys);
+    }
+
+    /* ── Input area ── */
+    .input-area {
+      border-top: 1px solid var(--border);
+      padding: 10px 0 env(safe-area-inset-bottom, 16px);
+      padding-bottom: max(16px, env(safe-area-inset-bottom));
+      flex-shrink: 0;
+      animation: fadeUp 0.5s 0.2s var(--ease-out) both;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 8px;
+      align-items: flex-end;
+    }
+
+    textarea {
+      flex: 1;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      color: var(--text);
+      font-family: var(--sys);
+      font-size: 15px;
+      line-height: 1.5;
+      padding: 9px 15px;
+      resize: none;
+      min-height: 40px;
+      max-height: 120px;
+      transition: border-color 0.15s;
+      overflow-y: hidden;
+    }
+
+    textarea::placeholder { color: var(--dim); }
+    textarea:focus { outline: none; border-color: #2060FD; }
+
+    .send-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: none;
+      background: #2060FD;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-bottom: 3px;
+      transition: background 0.15s, transform 0.1s var(--spring), opacity 0.15s;
+    }
+
+    .send-btn:hover  { background: #1A4FCC; }
+    .send-btn:active { transform: scale(0.88); }
+    .send-btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
+
+    .send-btn svg { color: #FFFFFF; display: block; }
+
+    .input-hint {
+      font-size: 11px;
+      color: var(--dim);
+      text-align: center;
+      margin-top: 6px;
+      font-family: var(--sys);
+    }
+
+    /* ── Keyframes ── */
+    @keyframes headerIn {
+      from { opacity: 0; transform: translateY(-12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+
+    @keyframes bubbleInRight {
+      0%   { opacity: 0; transform: scale(0.7) translateX(20px); }
+      100% { opacity: 1; transform: scale(1) translateX(0); }
+    }
+
+    @keyframes bubbleInLeft {
+      0%   { opacity: 0; transform: scale(0.7) translateX(-20px); }
+      100% { opacity: 1; transform: scale(1) translateX(0); }
+    }
+
+    @keyframes memeIn {
+      0%   { opacity: 0; transform: scale(0.75) translateY(10px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    @keyframes typingDot {
+      0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
+      30%            { opacity: 1;   transform: translateY(-4px); }
+    }
+
+    @keyframes pulse-green {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.4; }
+    }
+
+    @keyframes shimmer {
+      from { background-position: 200% 0; }
+      to   { background-position: -200% 0; }
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 480px) {
+      .bubble { max-width: 85%; }
+      .meme-card { max-width: 85%; }
+    }
+
+    /* ── Theme toggle ── */
+    .theme-toggle {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .toggle-label {
+      font-size: 12px;
+      color: var(--dim);
+      font-family: var(--sys);
+    }
+
+    .toggle-track {
+      width: 42px;
+      height: 26px;
+      border-radius: 13px;
+      background: var(--track-bg);
+      position: relative;
+      transition: background 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+      flex-shrink: 0;
+    }
+
+    .toggle-track.on {
+      background: var(--track-bg-on);
+    }
+
+    .toggle-thumb {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--thumb-color);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+      transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .toggle-track.on .toggle-thumb {
+      transform: translateX(16px);
+    }
+
+    .toggle-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      color: var(--dim);
+      transition: color 0.25s ease, transform 0.35s var(--spring);
+      flex-shrink: 0;
+    }
+    .toggle-icon svg {
+      display: block;
+      transition: transform 0.35s var(--spring);
+    }
+    [data-theme="dark"] .toggle-icon {
+      color: #FFD60A;
+    }
+
+    /* Header row with toggle */
+    .header-row {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      margin-bottom: 8px;
+    }
+
+    /* Smooth theme transitions on key elements */
+    header, .messages, .input-area, textarea,
+    .bubble, .typing-bubble, .suggestion,
+    .meme-card, .empty, .msg-label, .status {
+      transition: background 0.35s ease, color 0.35s ease,
+                  border-color 0.35s ease;
+    }
+
+  </style>
+</head>
+<body>
+<div class="shell">
+
+  <header>
+    <div class="header-row">
+      <div class="theme-toggle" id="themeToggle" role="button" aria-label="Toggle dark mode" tabindex="0">
+        <span class="toggle-icon" id="toggleIcon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></span>
+        <div class="toggle-track" id="toggleTrack">
+          <div class="toggle-thumb"></div>
+        </div>
+      </div>
+    </div>
+    <div class="header-top">
+      <div class="avatar">J</div>
+
+      <div class="header-info">
+        <div class="site-name">whyjose.dev</div>
+        <div class="status">
+          <div class="status-dot"></div>
+          <span>ask me anything about José</span>
+        </div>
+      </div>
+    </div>
+    <div class="suggestions" id="suggestions">
+      <button class="suggestion">What does he do?</button>
+      <button class="suggestion">Homelab setup?</button>
+      <button class="suggestion">How to reach him?</button>
+      <button class="suggestion">Open to work?</button>
+      <button class="suggestion">What's he into?</button>
+      <button class="suggestion">Where is he based?</button>
+    </div>
+  </header>
+
+  <div class="messages" id="messages">
+    <div class="empty" id="empty">
+      <div class="empty-glyph">J</div>
+      <div style="font-weight:500;color:var(--text)">No messages yet</div>
+      <div style="color:var(--dim);font-size:13px;margin-top:2px">Tap a suggestion or ask something</div>
+    </div>
+  </div>
+
+  <div class="input-area">
+    <div class="input-row">
+      <textarea id="input" placeholder="Ask about José…" rows="1" autocomplete="off" spellcheck="false"></textarea>
+      <button class="send-btn" id="sendBtn" disabled aria-label="Send">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="19" x2="12" y2="5"/>
+          <polyline points="5 12 12 5 19 12"/>
+        </svg>
+      </button>
+    </div>
+    <div class="input-hint">enter to send &nbsp;·&nbsp; shift+enter for newline</div>
+  </div>
+
+</div>
+
+<script>
+// ── THEME TOGGLE ──────────────────────────────────────────────────────────────
+const html         = document.documentElement;
+const toggleEl     = document.getElementById('themeToggle');
+const toggleTrack  = document.getElementById('toggleTrack');
+const toggleIcon   = document.getElementById('toggleIcon');
+
+// Respect saved preference; default = light
+let isDark = localStorage.getItem('theme') === 'dark';
+
+function applyTheme(dark, animate) {
+  if (dark) {
+    html.setAttribute('data-theme', 'dark');
+    toggleTrack.classList.add('on');
+    toggleIcon.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
+  } else {
+    html.removeAttribute('data-theme');
+    toggleTrack.classList.remove('on');
+    toggleIcon.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+  }
+  if (animate) {
+    // Brief flash class for extra snappiness
+    html.style.transition = 'background 0.35s ease, color 0.35s ease';
+  }
+  localStorage.setItem('theme', dark ? 'dark' : 'light');
+}
+
+applyTheme(isDark, false);
+
+function toggle() {
+  isDark = !isDark;
+  applyTheme(isDark, true);
+}
+
+toggleEl.addEventListener('click', toggle);
+toggleEl.addEventListener('keydown', e => {
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+});
+
+// ── CONFIG ────────────────────────────────────────────────────────────────────
+const PROXY_URL = 'https://whyjose-proxy.jose-b-costa.workers.dev';
+// ── CURATED MEMES ─────────────────────────────────────────────────────────────
+// Drop your files into a /memes/ folder in the repo.
+// Supported: .webm (preferred), .gif, .jpg, .png
+// Each intent can have multiple — one is picked at random.
+const CURATED = {
+  contact:      ['memes/contact.webm'],
+  homelab:      ['memes/homelab.webm'],
+  work:         ['memes/work.webm'],
+  hobbies:      ['memes/hobbies.webm'],
+  location:     ['memes/location.webm'],
+  opportunities:['memes/opportunities.webm'],
+  photography:  ['memes/photography.webm'],
+  gaming:       ['memes/gaming.webm'],
+  // add more intents freely
+};
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+const history = [];
+let busy = false;
+
+// ── DOM ───────────────────────────────────────────────────────────────────────
+const messagesEl = document.getElementById('messages');
+const inputEl    = document.getElementById('input');
+const sendBtn    = document.getElementById('sendBtn');
+const emptyEl    = document.getElementById('empty');
+
+// ── INPUT ─────────────────────────────────────────────────────────────────────
+inputEl.addEventListener('input', () => {
+  sendBtn.disabled = !inputEl.value.trim() || busy;
+  inputEl.style.height = 'auto';
+  inputEl.style.height = Math.min(inputEl.scrollHeight, 120) + 'px';
+});
+
+inputEl.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if (!sendBtn.disabled) send(); }
+});
+
+sendBtn.addEventListener('click', send);
+
+document.querySelectorAll('.suggestion').forEach(btn => {
+  btn.addEventListener('click', () => {
+    inputEl.value = btn.textContent;
+    inputEl.dispatchEvent(new Event('input'));
+    send();
+  });
+});
+
+// ── RENDER HELPERS ────────────────────────────────────────────────────────────
+function hideEmpty() { emptyEl.style.display = 'none'; }
+
+function addUserBubble(text) {
+  hideEmpty();
+  const row = document.createElement('div');
+  row.className = 'msg-row user';
+
+  const label = document.createElement('div');
+  label.className = 'msg-label';
+  label.textContent = 'you';
+
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble';
+  bubble.textContent = text;
+
+  row.appendChild(label);
+  row.appendChild(bubble);
+  messagesEl.appendChild(row);
+  scrollBottom();
+}
+
+function addBotRow() {
+  hideEmpty();
+  const row = document.createElement('div');
+  row.className = 'msg-row bot';
+
+  const label = document.createElement('div');
+  label.className = 'msg-label';
+  label.textContent = 'josé.ai';
+
+  row.appendChild(label);
+  messagesEl.appendChild(row);
+  return row;
+}
+
+function addBotBubble(row, text) {
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble';
+  bubble.textContent = text;
+  row.appendChild(bubble);
+  scrollBottom();
+}
+
+function addErrorBubble(text) {
+  hideEmpty();
+  const row = document.createElement('div');
+  row.className = 'msg-row bot';
+  const err = document.createElement('div');
+  err.className = 'error-bubble';
+  err.textContent = `⚠ ${text}`;
+  row.appendChild(err);
+  messagesEl.appendChild(row);
+  scrollBottom();
+}
+
+function showTyping() {
+  const row = document.createElement('div');
+  row.className = 'typing-row';
+  row.id = 'typing';
+  row.innerHTML = `<div class="typing-bubble"><span></span><span></span><span></span></div>`;
+  messagesEl.appendChild(row);
+  scrollBottom();
+}
+
+function hideTyping() { document.getElementById('typing')?.remove(); }
+
+function scrollBottom() {
+  requestAnimationFrame(() => {
+    messagesEl.scrollTo({ top: messagesEl.scrollHeight, behavior: 'smooth' });
+  });
+}
+
+function setLocked(val) {
+  busy = val;
+  sendBtn.disabled = val || !inputEl.value.trim();
+  inputEl.disabled = val;
+}
+
+// ── MEME LOADING ──────────────────────────────────────────────────────────────
+async function loadMeme(row, intent, tenorUrl) {
+  // Slight delay so meme appears after text settles
+  await new Promise(r => setTimeout(r, 300));
+
+  const shimmer = document.createElement('div');
+  shimmer.className = 'meme-shimmer';
+  row.appendChild(shimmer);
+  scrollBottom();
+
+  let src = null;
+  let isVideo = false;
+  let sourceLabel = '';
+
+  // 1. Try curated local file
+  const curated = CURATED[intent];
+  if (curated?.length) {
+    src = curated[Math.floor(Math.random() * curated.length)];
+    isVideo = src.endsWith('.webm');
+    sourceLabel = 'curated';
+  }
+
+  // 2. Fall back to Tenor URL returned by Worker (key never leaves server)
+  if (!src && tenorUrl) {
+    src = tenorUrl;
+    sourceLabel = 'tenor';
+  }
+
+  shimmer.remove();
+
+  if (!src) return; // silently skip if nothing found
+
+  const card = document.createElement('div');
+  card.className = 'meme-card';
+
+  if (isVideo) {
+    const vid = document.createElement('video');
+    vid.src = src;
+    vid.autoplay = true;
+    vid.loop = true;
+    vid.muted = true;
+    vid.playsInline = true;
+    vid.style.width = '100%';
+    card.appendChild(vid);
+  } else {
+    const img = document.createElement('img');
+    img.src = src;
+    img.alt = intent + ' meme';
+    img.loading = 'lazy';
+    card.appendChild(img);
+  }
+
+  if (sourceLabel === 'tenor') {
+    const s = document.createElement('div');
+    s.className = 'meme-source';
+    s.textContent = '· via tenor';
+    card.appendChild(s);
+  }
+
+  row.appendChild(card);
+  scrollBottom();
+}
+
+// ── SEND ──────────────────────────────────────────────────────────────────────
+async function send() {
+  const raw = inputEl.value.trim();
+  if (!raw || busy) return;
+
+  inputEl.value = '';
+  inputEl.style.height = 'auto';
+  sendBtn.disabled = true;
+
+  addUserBubble(raw);
+  history.push({ role: 'user', parts: [{ text: raw }] });
+
+  setLocked(true);
+  showTyping();
+
+  try {
+    const res = await fetch(PROXY_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        history: history.slice(0, -1),
+        message: raw,
+      }),
+    });
+
+    hideTyping();
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
+      addErrorBubble(err.error || `Worker returned ${res.status}`);
+      return;
+    }
+
+    const data     = await res.json();
+    const reply    = data.reply    ?? '(no response)';
+    const intent   = data.intent   ?? null;
+    const tenorUrl = data.tenorUrl ?? null;
+
+    const botRow = addBotRow();
+    addBotBubble(botRow, reply);
+    history.push({ role: 'model', parts: [{ text: reply }] });
+
+    if (intent) {
+      loadMeme(botRow, intent, tenorUrl); // non-blocking, Tenor URL already resolved server-side
+    }
+
+  } catch (e) {
+    hideTyping();
+    addErrorBubble(`Could not reach the proxy. Is the Worker deployed? (${e.message})`);
+  } finally {
+    setLocked(false);
+    inputEl.focus();
+  }
+}
+
+inputEl.focus();
+</script>
+</body>
+</html>

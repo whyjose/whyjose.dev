@@ -145,13 +145,47 @@
     }
 
     /* ── Suggestions ── */
-    .suggestions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 7px;
+    /* ── Hint button ── */
+    .hint-wrap {
       padding: 12px 0 0;
+      display: flex;
       justify-content: center;
       animation: fadeUp 0.5s 0.15s var(--ease-out) both;
+    }
+
+    .hint-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--dim);
+      font-family: var(--sys);
+      font-size: 12px;
+      font-weight: 500;
+      padding: 5px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s, background 0.15s, transform 0.1s;
+    }
+
+    .hint-btn:hover {
+      border-color: #2060FD;
+      color: #2060FD;
+      background: rgba(32,96,253,0.05);
+    }
+
+    .hint-btn:active { transform: scale(0.95); }
+
+    /* ── Suggestions (hidden by default, revealed on hint click) ── */
+    .suggestions {
+      display: none;
+      flex-wrap: wrap;
+      gap: 7px;
+      padding: 10px 0 0;
+      justify-content: center;
+    }
+
+    .suggestions.visible {
+      display: flex;
+      animation: fadeUp 0.3s var(--ease-out) both;
     }
 
     .suggestion {
@@ -534,6 +568,7 @@
 
   <header>
     <div class="header-row">
+      <a href="/about" style="font-size:12px;color:var(--dim);text-decoration:none;font-family:var(--sys);transition:color 0.15s;" onmouseover="this.style.color='#2060FD'" onmouseout="this.style.color='var(--dim)'">About</a>
       <div class="theme-toggle" id="themeToggle" role="button" aria-label="Toggle dark mode" tabindex="0">
         <span class="toggle-icon" id="toggleIcon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></span>
         <div class="toggle-track" id="toggleTrack">
@@ -552,13 +587,15 @@
         </div>
       </div>
     </div>
+    <div class="hint-wrap">
+      <button class="hint-btn" id="hintBtn">Need a hint?</button>
+    </div>
     <div class="suggestions" id="suggestions">
       <button class="suggestion">What does he do?</button>
-      <button class="suggestion">Homelab setup?</button>
       <button class="suggestion">How to reach him?</button>
       <button class="suggestion">Open to work?</button>
+      <button class="suggestion">Homelab setup?</button>
       <button class="suggestion">What's he into?</button>
-      <button class="suggestion">Where is he based?</button>
     </div>
   </header>
 
@@ -566,7 +603,7 @@
     <div class="empty" id="empty">
       <div class="empty-glyph">J</div>
       <div style="font-weight:500;color:var(--text)">No messages yet</div>
-      <div style="color:var(--dim);font-size:13px;margin-top:2px">Tap a suggestion or ask something</div>
+      <div style="color:var(--dim);font-size:13px;margin-top:2px">Ask something or tap "Need a hint?"</div>
     </div>
   </div>
 
@@ -625,7 +662,7 @@ toggleEl.addEventListener('keydown', e => {
 });
 
 // ── CONFIG ────────────────────────────────────────────────────────────────────
-const PROXY_URL = 'https://api.whyjose.dev';
+const PROXY_URL    = 'https://YOUR_WORKER.YOUR_SUBDOMAIN.workers.dev';
 // ── STATE ─────────────────────────────────────────────────────────────────────
 const history = [];
 let busy = false;
@@ -649,10 +686,22 @@ inputEl.addEventListener('keydown', e => {
 
 sendBtn.addEventListener('click', send);
 
+// Hint button — toggle suggestions
+const hintBtn      = document.getElementById('hintBtn');
+const suggestionsEl = document.getElementById('suggestions');
+
+hintBtn.addEventListener('click', () => {
+  const open = suggestionsEl.classList.toggle('visible');
+  hintBtn.textContent = open ? 'Never mind' : 'Need a hint?';
+});
+
+// Suggestion chips — send on click, collapse after
 document.querySelectorAll('.suggestion').forEach(btn => {
   btn.addEventListener('click', () => {
     inputEl.value = btn.textContent;
     inputEl.dispatchEvent(new Event('input'));
+    suggestionsEl.classList.remove('visible');
+    hintBtn.textContent = 'Need a hint?';
     send();
   });
 });

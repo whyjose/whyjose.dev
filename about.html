@@ -269,10 +269,11 @@
   </div>
 
   <section>
-    <h2>Who I am</h2>
-    <p>Technical Support Specialist based in Portugal, currently working at <a href="https://aircall.io" target="_blank">Aircall</a>.</p>
-    <p>Most of my work happens after an issue has already been escalated. I spend my time figuring out the problems that don't have obvious answers — whether that's a broken API integration, SAML/SSO authentication, MDM deployments, telephony issues, or something that's failing somewhere between five different systems.</p>
-    <p>I work closely with engineering and product to track down root causes, validate fixes, and make sure the same problems don't keep coming back. That also means writing documentation, improving internal processes, and sharing knowledge so the next person doesn't have to solve the same problem twice.</p>
+    <h2>About me</h2>
+    <p>I'm a Technical Support Specialist at <a href="https://aircall.io" target="_blank">Aircall</a>, focused on API integrations, authentication, telephony, and the kind of technical problems that don't come with obvious answers.</p>
+    <p>Most of my work starts once an issue has already been escalated. I analyze logs, inspect API traffic, troubleshoot networking and telephony issues, and trace requests across multiple systems to understand exactly where things break.</p>
+    <p>I also help customers build custom integrations and automate workflows using tools like n8n, Zapier, and Make. When I uncover a product bug, I reproduce it, gather the evidence, and give engineering everything they need to investigate and fix it.</p>
+    <p>What I enjoy most is untangling messy technical problems, especially the ones that sit somewhere between software, infrastructure, and people. Those are usually the interesting ones.</p>
   </section>
 
   <section>
@@ -310,17 +311,23 @@
   </section>
 
   <section>
-    <h2>This site</h2>
-    <p>whyjose.dev is a static website with an AI chatbot called <strong>JOSÉ.EXE</strong>.</p>
-    <p>The original idea was to build a simple portfolio assistant. Instead, it developed an attitude and slowly became the one running the website. It knows my background, projects, and work experience — and answers questions about me so I don't have to keep repeating myself. Ask it anything: what I do, how to reach me, what I've built. It'll answer. Dramatically, but accurately.</p>
-    <p>Technically: the frontend is a static site on GitHub Pages with no build step or dependencies. Requests go through a Cloudflare Worker that acts as a secure proxy — it holds the API keys, enforces an origin allowlist, applies rate limiting, and strips any model reasoning leaks before they reach the client. The AI itself routes through OpenRouter, which tries a priority list of 18 models in order — paid first, free as fallback — so there's always something available even if one provider is down. The system prompt and persona live entirely server-side; nothing sensitive is exposed to the browser.</p>
-    <p>Outside of this site, I spend a lot of time building things for myself. One of them is <strong>Peach Expenses</strong>, a self-hosted personal finance tracker built with FastAPI and PostgreSQL that uses a local AI model to classify transactions and runs entirely on my home network.</p>
-    <p>I also maintain a homelab running Home Assistant, Plex, Jellyfin, Pi-hole, WireGuard, and whatever else seemed like a good idea at 2 a.m.</p>
+    <h2>whyjose.dev</h2>
+    <p>This site started as a simple portfolio with an AI assistant. It didn't stay that way.</p>
+    <p>Somewhere along the way, the assistant developed a personality and decided it was the one running the site. <strong>JOSÉ.EXE</strong> knows my background, projects, and work experience, so instead of reading a static "About me" page, you can simply ask it. It'll answer dramatically, but accurately.</p>
+    <p>The website itself is intentionally simple: a fully static site hosted on GitHub Pages with no build step or frontend dependencies. Requests pass through a Cloudflare Worker that securely proxies everything, stores API keys, enforces an origin allowlist, applies rate limiting, and filters internal reasoning before responses reach the browser.</p>
+    <p>AI requests are routed through OpenRouter using a priority list of preferred free models. If one becomes unavailable, requests automatically fall back to the next available model, so the assistant keeps working without any manual intervention. The system prompt and persona live entirely on the server, so nothing sensitive ever reaches the browser.</p>
+  </section>
+
+  <section>
+    <h2>What I build</h2>
+    <p>I spend a lot of my free time building tools that solve problems I'd rather not solve twice.</p>
+    <p>One of those is a self-hosted personal finance tracker built with FastAPI and PostgreSQL. It uses a local AI model to classify transactions automatically and runs entirely on my home network, keeping both the data and the AI local.</p>
+    <p>I also run a homelab with Home Assistant, Plex, Jellyfin, Pi-hole, WireGuard, and whatever else seemed like a good idea at 2 a.m. It's where I experiment with self-hosting, networking, automation, and infrastructure, usually by breaking things first and figuring out how to fix them afterwards.</p>
   </section>
 
   <section>
     <h2>Outside of work</h2>
-    <p>Lately I've been learning film photography with an Olympus OM-1, collecting way more physical manga than I have shelf space for, and gaming whenever life decides to leave me a few free hours.</p>
+    <p>When I'm away from a terminal, you'll probably find me shooting film with an Olympus OM-1, collecting far more manga than I have shelf space for, or squeezing in a few hours of gaming whenever life allows.</p>
   </section>
 
   <section>

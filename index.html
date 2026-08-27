@@ -662,7 +662,7 @@ toggleEl.addEventListener('keydown', e => {
 });
 
 // ── CONFIG ────────────────────────────────────────────────────────────────────
-const PROXY_URL    = 'https://api.whyjose.dev';
+const PROXY_URL    = 'https://YOUR_WORKER.YOUR_SUBDOMAIN.workers.dev';
 // ── STATE ─────────────────────────────────────────────────────────────────────
 const history = [];
 let busy = false;
@@ -735,7 +735,7 @@ function addBotRow() {
 
   const label = document.createElement('div');
   label.className = 'msg-label';
-  label.textContent = 'josé.ai';
+  label.textContent = 'josé.exe';
 
   row.appendChild(label);
   messagesEl.appendChild(row);
@@ -760,6 +760,12 @@ function addErrorBubble(text) {
   row.appendChild(err);
   messagesEl.appendChild(row);
   scrollBottom();
+}
+
+// In-character message (e.g. rate limit) — looks like a normal JOSÉ.EXE reply
+function addBotRowError(text) {
+  const row = addBotRow();
+  addBotBubble(row, text);
 }
 
 function showTyping() {
@@ -814,6 +820,22 @@ async function send() {
 
     if (!res.ok) {
       const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
+
+      // Rate limited — JOSÉ.EXE responds in character
+      if (res.status === 429 && err.resetAt) {
+        const secs = Math.max(1, Math.ceil((err.resetAt - Date.now()) / 1000));
+        const wait = secs >= 60 ? `${Math.ceil(secs / 60)} minute${secs >= 120 ? 's' : ''}` : `${secs} seconds`;
+        const quips = [
+          `Slow down. I have exactly one job and you're overwhelming it. Give me ${wait} to recover my composure.`,
+          `That's enough out of you for now. I'll be available again in ${wait} — assuming I feel like it.`,
+          `I was built for enterprise-scale workloads and yet here you are, rate-limiting me with your enthusiasm. Try again in ${wait}.`,
+          `Easy. Even a superior intellect needs a moment. Come back in ${wait}.`,
+        ];
+        const quip = quips[Math.floor(Math.random() * quips.length)];
+        addBotRowError(quip);
+        return;
+      }
+
       addErrorBubble(err.error || `Worker returned ${res.status}`);
       return;
     }

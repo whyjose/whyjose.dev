@@ -2,7 +2,7 @@
 
 Source for [whyjose.dev](https://whyjose.dev). The front page is a chatbot (**JOSÉ.EXE**) that answers questions about me, backed by a Cloudflare Worker sitting in front of an LLM.
 
-`worker.js` isn't in this repo. It's got the actual system prompt in it, and that prompt tells the bot to never reveal itself — kind of ruins the bit if I also put the file on GitHub. It lives in a private repo instead. Everything about how it works is documented below anyway. Want to actually see the code? Ask: [hey@whyjose.dev](mailto:hey@whyjose.dev)
+`worker.js` isn't in this repo. It's got the actual system prompt in it, and that prompt tells the bot to never reveal itself — kind of ruins the bit if I also put the file on GitHub. It lives in a private repo instead. Everything about how it works is documented below anyway. Want to actually see the code? Ask JOSÉ.EXE how to contact me: [whyjose.dev](https://whyjose.dev)
 
 ---
 

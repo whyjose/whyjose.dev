@@ -4,6 +4,21 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>About — whyjose.dev</title>
+
+  <meta name="description" content="José — Technical Support Specialist at Aircall working on API integrations, SAML/SSO and telephony, plus a homelab, a self-hosted finance tracker, and the Cloudflare Worker behind this site." />
+  <meta name="theme-color" content="#2060FD" />
+  <link rel="canonical" href="https://whyjose.dev/about" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Cdefs%3E%3ClinearGradient%20id='g'%20x1='0'%20y1='0'%20x2='0.35'%20y2='1'%3E%3Cstop%20offset='0'%20stop-color='%235E5CE6'/%3E%3Cstop%20offset='1'%20stop-color='%232060FD'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width='64'%20height='64'%20rx='15'%20fill='url(%23g)'/%3E%3Ctext%20x='32'%20y='45'%20font-family='system-ui,Helvetica,Arial,sans-serif'%20font-size='36'%20font-weight='600'%20fill='%23FFFFFF'%20text-anchor='middle'%3EJ%3C/text%3E%3C/svg%3E" />
+
+  <meta property="og:title" content="About — whyjose.dev" />
+  <meta property="og:description" content="José — Technical Support Specialist working on API integrations, SAML/SSO and telephony. Homelab, self-hosted tooling, and the Worker behind this site." />
+  <meta property="og:type" content="profile" />
+  <meta property="og:url" content="https://whyjose.dev/about" />
+  <meta property="og:site_name" content="whyjose.dev" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="About — whyjose.dev" />
+  <meta name="twitter:description" content="José — Technical Support Specialist working on API integrations, SAML/SSO and telephony. Homelab, self-hosted tooling, and the Worker behind this site." />
+
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -273,6 +288,7 @@
     <p>I'm a Technical Support Specialist at <a href="https://aircall.io" target="_blank">Aircall</a>, focused on API integrations, authentication, telephony, and the kind of technical problems that don't come with obvious answers.</p>
     <p>Most of my work starts once an issue has already been escalated. I analyze logs, inspect API traffic, troubleshoot networking and telephony issues, and trace requests across multiple systems to understand exactly where things break.</p>
     <p>I also help customers build custom integrations and automate workflows using tools like n8n, Zapier, and Make. When I uncover a product bug, I reproduce it, gather the evidence, and give engineering everything they need to investigate and fix it.</p>
+    <p>In practice that spans CRM and helpdesk integrations (Salesforce, HubSpot, Zendesk), MDM and telephony/IVR configuration, and the data formats that hold it all together — XML, CSV, EDI. The day-to-day toolbox is Postman, Datadog, Looker, Jira and the rest of the Atlassian suite, on both Linux and Windows.</p>
     <p>What I enjoy most is untangling messy technical problems, especially the ones that sit somewhere between software, infrastructure, and people. Those are usually the interesting ones.</p>
   </section>
 
@@ -282,31 +298,13 @@
       <span class="tag">REST APIs</span>
       <span class="tag">Webhooks</span>
       <span class="tag">SAML / SSO</span>
-      <span class="tag">MDM</span>
-      <span class="tag">Telephony</span>
-      <span class="tag">IVR</span>
       <span class="tag">Networking</span>
       <span class="tag">Linux</span>
-      <span class="tag">Windows</span>
       <span class="tag">Docker</span>
       <span class="tag">Proxmox</span>
-      <span class="tag">Salesforce</span>
-      <span class="tag">HubSpot</span>
-      <span class="tag">Zendesk</span>
-      <span class="tag">Jira</span>
-      <span class="tag">Postman</span>
-      <span class="tag">Datadog</span>
-      <span class="tag">Looker</span>
-      <span class="tag">Atlassian Suite</span>
       <span class="tag">Python</span>
       <span class="tag">SQL</span>
-      <span class="tag">PowerShell</span>
-      <span class="tag">XML</span>
-      <span class="tag">CSV</span>
-      <span class="tag">EDI</span>
-      <span class="tag">Anthropic Claude</span>
-      <span class="tag">OpenRouter</span>
-      <span class="tag">AI integrations</span>
+      <span class="tag">Datadog</span>
     </div>
   </section>
 
@@ -314,8 +312,10 @@
     <h2>whyjose.dev</h2>
     <p>This site started as a simple portfolio with an AI assistant. It didn't stay that way.</p>
     <p>Somewhere along the way, the assistant developed a personality and decided it was the one running the site. <strong>JOSÉ.EXE</strong> knows my background, projects, and work experience, so instead of reading a static "About me" page, you can simply ask it. It'll answer dramatically, but accurately.</p>
-    <p>The website itself is intentionally simple: a fully static site hosted on GitHub Pages with no build step or frontend dependencies. Requests pass through a Cloudflare Worker that securely proxies everything, stores API keys, enforces an origin allowlist, applies rate limiting, and filters internal reasoning before responses reach the browser.</p>
-    <p>AI requests are routed through OpenRouter using a priority list of preferred free models. If one becomes unavailable, requests automatically fall back to the next available model, so the assistant keeps working without any manual intervention. The system prompt and persona live entirely on the server, so nothing sensitive ever reaches the browser.</p>
+    <p>The website itself is intentionally simple: a fully static site hosted on GitHub Pages with no build step or frontend dependencies. Requests pass through a Cloudflare Worker that holds the API key, checks the request origin, applies per-IP rate limiting, and filters leaked model reasoning before responses reach the browser.</p>
+    <p>To be precise about that origin check, since it's the sort of thing people oversell: it restricts direct browser-based cross-origin usage, because browsers set the <strong>Origin</strong> header themselves. It does not authenticate anything — a scripted client can send whatever origin it likes. Rate limiting is the actual backstop against abuse.</p>
+    <p>AI requests are routed through OpenRouter using a priority list of models, paid first and free as the safety net. If one is unavailable the Worker falls back to the next, within a fixed overall time budget so a bad day upstream doesn't turn into a two-minute wait. The system prompt and persona live entirely on the server, so nothing sensitive ever reaches the browser.</p>
+    <p>The Worker source, the deployment config and the write-up are all public: <a href="https://github.com/whyjose/whyjose.dev" target="_blank">github.com/whyjose/whyjose.dev</a>.</p>
   </section>
 
   <section>

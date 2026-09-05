@@ -87,18 +87,4 @@ Used to also strip anything starting with common words like "First" or "Note:", 
 
 ---
 
-## What's not great yet
-
-Roughly in order of how much it'd bother me if this were a real product and not a portfolio piece:
-
-- **Rate limiter isn't actually global.** It's a plain `Map` living inside a Worker. Cloudflare runs a bunch of isolates across a bunch of locations and recycles them whenever, so "15 per IP per hour" is really "15 per IP per hour per isolate that happens to catch you," and it resets when that isolate gets evicted. Fine for a personal project with a capped budget. Wouldn't ship it like this for anything that actually spends real money.
-- **Origin check doesn't stop a script, only a browser.** Covered above. A signed token per page load or a Turnstile challenge would close it, but that's more moving parts than this needs right now.
-- **Deploy used to be copy-pasting into the Cloudflare dashboard.** No diff, no rollback, no way to tell if the deployed code matched the repo. `wrangler.toml` fixed that part.
-- **No CI.** Deploys are manual, nothing polls `/health` on its own. Didn't feel worth wiring up automation for one endpoint, especially since I've already got that pattern shown elsewhere.
-- **No real logging.** Just `console.log` and Worker tail. Can debug live, can't tell you how often the chain actually falls past model 5.
-- **No tests.** The reasoning-strip bug above is a decent argument I should add some.
-- **`resetAt` on the 429 is a best guess, not a promise**, since the counter itself isn't exact either.
-
----
-
 *Built by José. Maintained against its will by JOSÉ.EXE.*
